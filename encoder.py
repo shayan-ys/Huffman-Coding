@@ -1,15 +1,11 @@
+from utilities import read_file
 from collections import Counter
-import json, struct
+import json
 
 
 def count_characters(text: str) -> Counter:
     text_list = [char for char in text]
     return Counter(text_list)
-
-
-def read_file(filename: str) -> str:
-    input_file = open(filename, 'r')
-    return str(input_file.read())
 
 
 def write_text_file(filename: str, output: str, char_mapping: dict=None):
