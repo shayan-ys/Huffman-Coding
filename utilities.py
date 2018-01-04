@@ -6,6 +6,11 @@ def read_json_file(filename: str) -> dict:
         return json.load(json_data)
 
 
-def read_file(filename: str) -> str:
+def read_file(filename: str) -> bytes:
+    input_file = open(filename, 'rb')
+    return input_file.read()
+
+
+def read_text_file(filename: str) -> str:
     input_file = open(filename, 'r')
-    return str(input_file.read())
+    return input_file.read()

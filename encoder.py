@@ -3,12 +3,12 @@ from collections import Counter
 import json
 
 
-def count_characters(text: str) -> Counter:
+def count_characters(text: bytes) -> Counter:
     text_list = [char for char in text]
     return Counter(text_list)
 
 
-def write_text_file(filename: str, output: str, char_mapping: dict=None):
+def write_text_file(filename: str, output: iter, char_mapping: dict=None):
     if char_mapping:
         mapped_str = ''
         for char in output:
@@ -38,7 +38,7 @@ def make_nodes_list_and_orphan_counter(char_counter: Counter) -> (list, Counter)
 
 def make_tree(node_index: int, nodes_list: list, char_mapping: dict={}, traverse_str: str='') -> (dict, dict):
     node = nodes_list[node_index]
-    if isinstance(node, str):
+    if isinstance(node, int):
         char_mapping[node] = traverse_str
         return node, char_mapping
     else:
@@ -47,8 +47,9 @@ def make_tree(node_index: int, nodes_list: list, char_mapping: dict={}, traverse
         return {0: left, 1: right}, char_mapping
 
 
-def encode(text: str):
-    characters_counter = count_characters(text)
+def encode(filename: str):
+    input_bytes = read_file(filename)
+    characters_counter = count_characters(input_bytes)
     print(characters_counter)
 
     nodes_list, orphan_counter = make_nodes_list_and_orphan_counter(characters_counter)
@@ -84,10 +85,19 @@ def encode(text: str):
     print(char_mapping)
 
     write_json_file('manifest.json', tree)
-    write_text_file('compressed.bin', text, char_mapping)
+    write_text_file('compressed.bin', input_bytes, char_mapping)
 
 
 # test_text = "mississippi river"
-test_text = read_file('sample.txt')
+# test_text = read_file('sample.txt')
+#
+encode('sample.png')
 
-encode(test_text)
+# with open("sample.txt", "rb") as imageFile:
+#     f = imageFile.read()
+#
+# b_int = list(map(int, f))
+# print(b_int[:10])
+
+# with open("sample2.png", "wb") as imageFile:
+#     imageFile.write(bytearray(b_int))
