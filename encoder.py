@@ -1,27 +1,13 @@
-from utilities import read_file
+from utilities import write_json_file, write_compressed_bin_file, read_bin_file
+import defaults
+
 from collections import Counter
-import json
+import sys
 
 
 def count_characters(text: bytes) -> Counter:
     text_list = [char for char in text]
     return Counter(text_list)
-
-
-def write_text_file(filename: str, output: iter, char_mapping: dict=None):
-    if char_mapping:
-        mapped_str = ''
-        for char in output:
-            mapped_str += char_mapping[char]
-        output = mapped_str
-
-    with open(filename, 'w') as outfile:
-        outfile.write(output)
-
-
-def write_json_file(filename: str, output: dict):
-    with open(filename, 'w') as outfile:
-        json.dump(output, outfile)
 
 
 def make_nodes_list_and_orphan_counter(char_counter: Counter) -> (list, Counter):
@@ -48,16 +34,10 @@ def make_tree(node_index: int, nodes_list: list, char_mapping: dict={}, traverse
 
 
 def encode(filename: str):
-    input_bytes = read_file(filename)
+    input_bytes = read_bin_file(filename)
     characters_counter = count_characters(input_bytes)
-    print(characters_counter)
 
     nodes_list, orphan_counter = make_nodes_list_and_orphan_counter(characters_counter)
-    print(nodes_list)
-    print(orphan_counter)
-
-    print(characters_counter.most_common()[-2:])
-    print(len(characters_counter))
 
     while len(orphan_counter) >= 2:
         selected_nodes = orphan_counter.most_common()[-2:]
@@ -74,30 +54,17 @@ def encode(filename: str):
 
         nodes_list.append(new_node)
 
-    print(orphan_counter)
     root_node_index = orphan_counter.most_common()[0][0]
-    print(nodes_list)
-    print(nodes_list[root_node_index])
 
     tree, char_mapping = make_tree(root_node_index, nodes_list)
 
-    print(tree)
-    print(char_mapping)
-
-    write_json_file('manifest.json', tree)
-    write_text_file('compressed.bin', input_bytes, char_mapping)
+    write_json_file(defaults.manifest_file_prefix + filename + defaults.manifest_file_extension, tree)
+    write_compressed_bin_file(filename + defaults.compressed_file_extension, input_bytes, char_mapping)
 
 
-# test_text = "mississippi river"
-# test_text = read_file('sample.txt')
-#
-encode('sample.png')
+filename = 'sample.txt'
+if sys.argv and len(sys.argv) > 1:
+    filename = sys.argv[1]
 
-# with open("sample.txt", "rb") as imageFile:
-#     f = imageFile.read()
-#
-# b_int = list(map(int, f))
-# print(b_int[:10])
-
-# with open("sample2.png", "wb") as imageFile:
-#     imageFile.write(bytearray(b_int))
+encode(filename)
+print("Compression process finished.")
